@@ -1,36 +1,47 @@
-This project is a modern web application built with Next.js, a React-based framework designed for server-side rendering (SSR), static site generation (SSG), and API routes — giving you the perfect balance of speed, SEO, and scalability.
+Vieromind Mood Tracking 🧠💫
 
-It was bootstrapped with create-next-app, providing a powerful developer setup to build production-grade apps with minimal configuration.
+A modern mood tracking web application built with Next.js for speed, SEO, and scalability.
 
-Tech Stack
+🚀 Overview
+
+Vieromind is a next-gen mood tracking web app designed to help users visualize, analyze, and manage their emotional health.
+Built with Next.js 14+, it leverages SSR (Server-Side Rendering), SSG (Static Site Generation), and modern API integrations to deliver a seamless and interactive experience.
+
+Powered by Gemini API for intelligent mood insights and ShadCN/UI for a sleek interface — it’s a blend of design and intelligence.
+
+🧩 Tech Stack
 Technology	Purpose
-Next.js 14+	Core framework for React-based SSR/SSG apps
+Next.js 14+	Core framework for SSR/SSG and API routes
 React 19	Frontend library for UI components
-Tailwind CSS (Optional)	Utility-first styling (if added)
-Vercel Hosting	Deployment and CI/CD
-ESLint & Prettier	Code linting and formatting
-next/font	Built-in font optimization with Geist (by Vercel)
+Tailwind CSS	Utility-first CSS framework for styling
+ShadCN/UI	Elegant UI component library
+Gemini API	AI-driven mood analysis
 Clerk	Authentication and user management
 Recharts	Data visualization and interactive charts
-Folder Structure
-📦 project-root
- ┣ 📂 app/                  # App router for pages
- ┃ ┣ 📜 page.js             # Home page
- ┃ ┗ 📜 layout.js           # Root layout
- ┣ 📂 public/               # Static assets
- ┣ 📂 styles/               # Global styles (if using CSS)
+Vercel	Hosting and CI/CD
+ESLint & Prettier	Code quality and formatting tools
+next/font	Built-in font optimization (Geist by Vercel)
+🗂 Folder Structure
+📦 vieromind-mood-tracking
+ ┣ 📂 app/
+ ┃ ┣ 📜 page.js             # Home Page
+ ┃ ┣ 📜 dashboard/page.js   # Dashboard Page
+ ┃ ┣ 📜 summary/page.js     # Summary Page
+ ┃ ┗ 📜 moodlog/page.js     # Mood Log Page
+ ┣ 📂 public/               # Static assets (icons, images)
+ ┣ 📂 styles/               # Global styles (optional)
  ┣ 📜 package.json          # Dependencies & scripts
  ┣ 📜 next.config.js        # Next.js configuration
- ┗ 📜 README.md             # Project documentation
+ ┗ 📜 README.md             # Documentation
 
-Getting Started
+⚙️ Getting Started
 
-Follow these steps to run the project locally:
+Follow these steps to set up the project locally:
 
-1. Clone the Repository
+1️⃣ Clone the Repository
 git clone https://github.com/Umar-ejaz15/vieromind-mood-tracking
 
-2. Install Dependencies
+2️⃣ Install Dependencies
 npm install
 # or
 yarn install
@@ -39,39 +50,45 @@ pnpm install
 # or
 bun install
 
-3. Run the Development Server
+3️⃣ Run the Development Server
 npm run dev
 # or
 yarn dev
 
 
-Now open your browser and visit http://localhost:3000
+Now visit 👉 http://localhost:3000
 
-Project Structure Explained
+🧠 Pages Overview
 
-app/page.js – The main landing page of your project. You can modify this to update your home screen UI.
+🏠 Home Page – The main landing page introducing Vieromind’s purpose and flow.
 
-app/layout.js – Wraps your entire app; ideal for global layouts, headers, and footers.
+📊 Dashboard Page – Displays user moods, charts, and insights powered by Gemini API.
 
-next/font – Automatically optimizes and loads fonts, like Geist by Vercel.
+📈 Summary Page – Summarized emotional analytics and AI-driven insights.
 
-public/ – Store all static assets such as images and icons here.
+📝 Mood Log Page – Allows users to log their moods and experiences.
 
-Learning & Resources
+🔑 Environment Variables
 
-Enhance your Next.js knowledge through these official resources:
+Create a .env.local file in the root directory with the following variables:
 
-Next.js Docs: Explore core features and APIs
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 
-Interactive Tutorial: Learn Next.js by building projects step-by-step
+# Database Connection
+DATABASE_URL="postgresql://your_database_url_here"
 
-Next.js GitHub: Contribute or explore the source code
+# Gemini API Key
+NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_api_key
 
-Deployment
 
-Deploy easily on Vercel, the official platform for Next.js.
+⚠️ Note: Never commit .env.local to version control.
 
-Steps:
+☁️ Deployment
+
+Deploy instantly with Vercel — the official hosting platform for Next.js.
 
 Push your code to GitHub.
 
@@ -82,59 +99,24 @@ Connect your repository.
 
 Click “Deploy”.
 
-Your app will be live in seconds.
+Your app will be live within seconds! ⚡
 
-For more information, see the Next.js Deployment Guide
-.
+🧩 Future Enhancements
 
-Environment Variables (Optional)
+✨ Integration with AI-based emotion recommendations via Gemini
+📆 Add mood journaling and daily reflections
+📱 Build mobile responsiveness and PWA support
+🎨 Add animations with Framer Motion for smoother transitions
+📊 Advanced analytics with interactive Recharts visualizations
 
-If your project uses environment variables, create a .env.local file in the root directory:
-
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_dG91Y2hpbmctaGlwcG8tMTguY2xlcmsuYWNjb3VudHMuZGV2JA
-CLERK_SECRET_KEY=sk_test_oiPo7wfO6Il5Gu96pe0OZPOR6DJGvqVMFtmMhNPWiF
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/
-NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/
-NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/
-
-# This was inserted by `prisma init`:
-# Environment variables declared in this file are automatically made available to Prisma.
-# See the documentation for more detail: https://pris.ly/d/prisma-schema#accessing-environment-variables-from-the-schema
-
-# Prisma supports the native connection string format for PostgreSQL, MySQL, SQLite, SQL Server, MongoDB and CockroachDB.
-# See the documentation for all the connection string options: https://pris.ly/d/connection-strings
-
-# The following `prisma+postgres` URL is similar to the URL produced by running a local Prisma Postgres 
-# server with the `prisma dev` CLI command, when not choosing any non-default ports or settings. The API key, unlike the 
-# one found in a remote Prisma Postgres URL, does not contain any sensitive information.
-
-# .env
-DATABASE_URL="postgresql://neondb_owner:npg_zZD7B6pOMfSx@ep-red-star-adhv4t53.c-2.us-east-1.aws.neon.tech/db_umarejaz?sslmode=require&channel_binding=require%22"
-
-
-Note: Never commit .env.local to your Git repository.
-
-Future Enhancements
-
-Add API routes for backend integration
-
-Integrate authentication with Clerk
-
-Add database support with Prisma or MongoDB
-
-Improve SEO using Next.js Metadata API
-
-Add animations using Framer Motion
-
-Include advanced data visualizations using Recharts
-
-Author
+👨‍💻 Author
 
 Developer: Umar Ejaz
 Role: Full Stack MERN Developer
 Portfolio: umarmernstack.vercel.app
 
-Specialties: React, Next.js, Tailwind, GSAP, Framer Motion, Clerk, Recharts, AI Tools
+Specialties: React | Next.js | Tailwind | ShadCN/UI | GSAP | Framer Motion | Clerk | Recharts | Gemini AI
+
+🧘‍♂️ Closing Note
+
+“Mood tracking meets intelligence — Vieromind helps you not just feel but understand.” 🌙
