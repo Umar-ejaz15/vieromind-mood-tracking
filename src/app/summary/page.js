@@ -106,7 +106,7 @@ export default function SummaryPage() {
       <Sidebar />
       <div className="flex-1 p-6 bg-gray-50 dark:bg-gray-900">
         <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-          🌤️ Mood Summary Report
+           Mood Summary Report
         </h1>
 
         <button
@@ -120,7 +120,7 @@ export default function SummaryPage() {
 {summary && (
   <div className="mt-6 bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
     <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">
-      ✨ Your Emotional Insight
+      Your Emotional Insight
     </h2>
 
     {/* Wrap ReactMarkdown in a div for styling */}
@@ -134,7 +134,7 @@ export default function SummaryPage() {
       onClick={handleDownload}
       className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
     >
-      ⬇️ Download Summary
+      ⬇ Download Summary
     </button>
   </div>
 )}
