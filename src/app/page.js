@@ -11,6 +11,7 @@ import Footer from "./HomeComponents/Footer"
 
 export default function Page() {
   const { user, isLoaded } = useUser()
+  
   const router = useRouter()
 
   // Redirect logged-in users to dashboard
