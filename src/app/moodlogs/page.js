@@ -24,7 +24,7 @@ export default function Page() {
   return (
     <div className="min-h-screen flex">
       <Sidebar />
-      <div className="w-[70%]  bg-gray-50 dark:bg-gray-900 p-5">
+      <div className="w-full   bg-gray-50 dark:bg-gray-900 p-5">
         <UserMood/>
       </div>
     </div>
