@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model MoodLog {
+  id               String   @id @default(cuid())
+  userId           String
+  userEmail        String?
+
+  // Core Metrics
+  mood             String?   // AWFUL, BAD, OK, GOOD, GREAT
+  moodValue        Int?      // 1-5 numeric for charts
+  anxietyLevel     Int?      // 1-5
+  energyLevel      Int?      // 1-5
+  sleepHours       Float?    // Hours slept
+
+  // Advanced Metrics
+  focusLevel       Int?      // 1-10
+  motivationLevel  Int?      // 1-10
+  productivity     Int?      // 1-10
+  socialInteraction Int?     // 1-10
+
+
+  // Notes & Journals
+  notes            String?
+  morningJournal   String?
+  eveningJournal   String?
+  triggers         String?   // optional: comma separated or JSON array
+
+  // Timestamp
+  date             DateTime
+
+  @@unique([userId, date])
+}
