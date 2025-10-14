@@ -5,11 +5,11 @@ import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Sidebar from "../components/Sidebar";
 import axios from "axios";
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  BarChart, Bar
-} from "recharts";
-import Link from "next/link";
+
+import TherapySuggestion from "./components/TherapySuggestion";
+import BarChartCard from "./components/BarChartCard";
+import LineChartCard from "./components/LineChartCard";
+import StatCard from "./components/StatCard";
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser();
@@ -17,8 +17,8 @@ export default function DashboardPage() {
   const [logs, setLogs] = useState([]);
   const [isDark, setIsDark] = useState(false);
 
-  const moodMap = { "AWFUL": 1, "BAD": 2, "OK": 3, "GOOD": 4, "GREAT": 5 };
-  const moodLabels = {1:"AWFUL",2:"BAD",3:"OK",4:"GOOD",5:"GREAT"};
+  const moodMap = { AWFUL: 1, BAD: 2, OK: 3, GOOD: 4, GREAT: 5 };
+  const moodLabels = { 1: "AWFUL", 2: "BAD", 3: "OK", 4: "GOOD", 5: "GREAT" };
 
   // Detect dark mode
   useEffect(() => {
@@ -36,13 +36,18 @@ export default function DashboardPage() {
 
     const fetchLogs = async () => {
       try {
-        const res = await axios.get("/api/moodlogs/all", { params: { userId: user.id }});
+        const res = await axios.get("/api/moodlogs/all", {
+          params: { userId: user.id },
+        });
         const data = res.data
-          .sort((a,b) => new Date(a.date) - new Date(b.date))
-          .map(log => {
+          .sort((a, b) => new Date(a.date) - new Date(b.date))
+          .map((log) => {
             const moodKey = (log.mood || "N/A").toUpperCase(); // Normalize string
             return {
-              date: new Date(log.date).toLocaleDateString("en-US", { month:"short", day:"numeric" }),
+              date: new Date(log.date).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              }),
               moodValue: moodMap[moodKey] || 0,
               moodLabel: log.mood || "N/A",
               sleep: log.sleepHours || 0,
@@ -54,8 +59,8 @@ export default function DashboardPage() {
               social: log.socialInteraction || 0,
               notes: log.notes || "",
               morning: log.morningJournal || "",
-              evening: log.eveningJournal || ""
-            }
+              evening: log.eveningJournal || "",
+            };
           });
         setLogs(data);
       } catch (err) {
@@ -69,170 +74,95 @@ export default function DashboardPage() {
   if (!isLoaded) return null;
 
   // Quick stats
-  const avgMood = logs.length ? (logs.reduce((a,b)=>a+b.moodValue,0)/logs.length).toFixed(1) : 0;
-  const avgAnxiety = logs.length ? (logs.reduce((a,b)=>a+b.anxiety,0)/logs.length).toFixed(1) : 0;
-  const avgEnergy = logs.length ? (logs.reduce((a,b)=>a+b.energy,0)/logs.length).toFixed(1) : 0;
-  const totalSleep = logs.length ? logs.reduce((a,b)=>a+b.sleep,0) : 0;
+  const avgMood = logs.length
+    ? (logs.reduce((a, b) => a + b.moodValue, 0) / logs.length).toFixed(1)
+    : 0;
+  const avgAnxiety = logs.length
+    ? (logs.reduce((a, b) => a + b.anxiety, 0) / logs.length).toFixed(1)
+    : 0;
+  const avgEnergy = logs.length
+    ? (logs.reduce((a, b) => a + b.energy, 0) / logs.length).toFixed(1)
+    : 0;
+  const totalSleep = logs.length ? logs.reduce((a, b) => a + b.sleep, 0) : 0;
 
   // Therapy suggestion (last 7 days)
   const recentLogs = logs.slice(-7);
-  const lowMoodDays = recentLogs.filter(log => log.moodValue <= 2).length;
-  const highAnxietyDays = recentLogs.filter(log => log.anxiety >= 4).length;
+  const lowMoodDays = recentLogs.filter((log) => log.moodValue <= 2).length;
+  const highAnxietyDays = recentLogs.filter((log) => log.anxiety >= 4).length;
   const suggestTherapy = lowMoodDays >= 3 || highAnxietyDays >= 3;
 
-  const tooltipClass = `p-2 border rounded shadow ${isDark ? 'bg-gray-800 text-gray-100 border-gray-700' : 'bg-white text-gray-900 border-gray-200'}`;
+  const tooltipClass = `p-2 border rounded shadow ${
+    isDark
+      ? "bg-gray-800 text-gray-100 border-gray-700"
+      : "bg-white text-gray-900 border-gray-200"
+  }`;
 
   return (
     <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
       <Sidebar />
       <div className="flex-1 w-full md:w-[70%] p-6 space-y-8">
-
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Mood & Health Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+          Mood & Health Dashboard
+        </h1>
 
         {/* Therapy Suggestion */}
-        {suggestTherapy && (
-          <div className="p-4 bg-red-100 dark:bg-red-800 text-red-900 dark:text-red-200 rounded-lg shadow mb-4">
-            Based on your recent mood and anxiety patterns, it might help to reach out to a therapist.
-            <Link
-              href="https://www.psychologytoday.com/us/therapists"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block py-2 px-4 rounded-lg bg-red-500 text-white text-center font-semibold hover:bg-red-600 transition-colors mt-2"
-            >
-              Reach a Therapist
-            </Link>
-          </div>
-        )}
+        <TherapySuggestion
+          show={suggestTherapy}
+          link="https://www.psychologytoday.com/us/therapists"
+          text="Based on your recent mood and anxiety patterns, it might help to reach out to a therapist."
+        />
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col items-center hover:scale-105 transition-transform">
-            <h3 className="text-gray-500 dark:text-gray-400">Average Mood</h3>
-            <p className="text-2xl font-bold">{avgMood}</p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col items-center hover:scale-105 transition-transform">
-            <h3 className="text-gray-500 dark:text-gray-400">Total Sleep</h3>
-            <p className="text-2xl font-bold">{totalSleep} hrs</p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col items-center hover:scale-105 transition-transform">
-            <h3 className="text-gray-500 dark:text-gray-400">Average Anxiety</h3>
-            <p className="text-2xl font-bold">{avgAnxiety}</p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col items-center hover:scale-105 transition-transform">
-            <h3 className="text-gray-500 dark:text-gray-400">Average Energy</h3>
-            <p className="text-2xl font-bold">{avgEnergy}</p>
-          </div>
+          <StatCard title="Average Mood" value={avgMood} />
+          <StatCard title="Total Sleep" value={`${totalSleep} hrs`} />
+          <StatCard title="Average Anxiety" value={avgAnxiety} />
+          <StatCard title="Average Energy" value={avgEnergy} />
         </div>
 
         {/* Mood & Energy Trends */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Mood & Energy Trends</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={logs}>
-              <defs>
-                <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={isDark ? "#60a5fa" : "#3b82f6"} stopOpacity={0.8}/>
-                  <stop offset="100%" stopColor={isDark ? "#1e3a8a" : "#3b82f6"} stopOpacity={0.2}/>
-                </linearGradient>
-                <linearGradient id="anxietyGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={isDark ? "#f87171" : "#ef4444"} stopOpacity={0.8}/>
-                  <stop offset="100%" stopColor={isDark ? "#991b1b" : "#ef4444"} stopOpacity={0.2}/>
-                </linearGradient>
-                <linearGradient id="energyGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={isDark ? "#34d399" : "#10b981"} stopOpacity={0.8}/>
-                  <stop offset="100%" stopColor={isDark ? "#065f46" : "#10b981"} stopOpacity={0.2}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3"/>
-              <XAxis dataKey="date"/>
-              <YAxis domain={[0,5]} ticks={[1,2,3,4,5]} tickFormatter={val => moodLabels[val]}/>
-              <Tooltip content={({active,payload})=>{
-                if(active && payload && payload.length){
-                  const p = payload[0].payload;
-                  return (
-                    <div className={tooltipClass}>
-                      <p><strong>Date:</strong> {p.date}</p>
-                      <p><strong>Mood:</strong> {p.moodLabel}</p>
-                      <p><strong>Anxiety:</strong> {p.anxiety}</p>
-                      <p><strong>Energy:</strong> {p.energy}</p>
-                      <p><strong>Notes:</strong> {p.notes}</p>
-                    </div>
-                  )
-                }
-                return null;
-              }}/>
-              <Legend />
-              <Line type="monotone" dataKey="moodValue" stroke="#3b82f6" strokeWidth={3} dot={{r:6}} activeDot={{r:8}} fill="url(#moodGradient)"/>
-              <Line type="monotone" dataKey="anxiety" stroke="#ef4444" strokeWidth={3} dot={{r:6}} activeDot={{r:8}} fill="url(#anxietyGradient)"/>
-              <Line type="monotone" dataKey="energy" stroke="#10b981" strokeWidth={3} dot={{r:6}} activeDot={{r:8}} fill="url(#energyGradient)"/>
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+        <LineChartCard
+          title="Mood & Energy Trends"
+          data={logs}
+          lines={[
+            {
+              dataKey: "moodValue",
+              stroke: "#3b82f6",
+              gradientId: "moodGradient",
+            },
+            {
+              dataKey: "anxiety",
+              stroke: "#ef4444",
+              gradientId: "anxietyGradient",
+            },
+            {
+              dataKey: "energy",
+              stroke: "#10b981",
+              gradientId: "energyGradient",
+            },
+          ]}
+          yAxisConfig={{
+            domain: [0, 5],
+            ticks: [1, 2, 3, 4, 5],
+            tickFormatter: (val) => moodLabels[val],
+          }}
+          tooltipClass={tooltipClass}
+        />
 
         {/* Sleep Trend */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Sleep Trend</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={logs}>
-              <defs>
-                <linearGradient id="sleepGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={isDark ? "#fb923c" : "#f97316"} stopOpacity={0.8}/>
-                  <stop offset="100%" stopColor={isDark ? "#9a3412" : "#f97316"} stopOpacity={0.2}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3"/>
-              <XAxis dataKey="date"/>
-              <YAxis/>
-              <Tooltip content={({active,payload})=>{
-                if(active && payload && payload.length){
-                  const p = payload[0].payload;
-                  return (
-                    <div className={tooltipClass}>
-                      <p><strong>Date:</strong> {p.date}</p>
-                      <p><strong>Sleep:</strong> {p.sleep} hrs</p>
-                    </div>
-                  )
-                }
-                return null;
-              }}/>
-              <Legend />
-              <Line type="monotone" dataKey="sleep" stroke="#f97316" strokeWidth={3} dot={{r:6}} activeDot={{r:8}} fill="url(#sleepGradient)"/>
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+        <BarChartCard
+          title="Advanced Metrics"
+          data={logs}
+          bars={[
+            { dataKey: "focus", fill: "#8b5cf6", radius: [6, 6, 0, 0] },
+            { dataKey: "motivation", fill: "#14b8a6", radius: [6, 6, 0, 0] },
+            { dataKey: "productivity", fill: "#facc15", radius: [6, 6, 0, 0] },
+            { dataKey: "social", fill: "#f43f5e", radius: [6, 6, 0, 0] },
+          ]}
+          tooltipClass={tooltipClass}
+        />
 
         {/* Advanced Metrics */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Advanced Metrics</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={logs}>
-              <CartesianGrid strokeDasharray="3 3"/>
-              <XAxis dataKey="date"/>
-              <YAxis/>
-              <Tooltip content={({active,payload})=>{
-                if(active && payload && payload.length){
-                  const p = payload[0].payload;
-                  return (
-                    <div className={tooltipClass}>
-                      <p><strong>Date:</strong> {p.date}</p>
-                      <p><strong>Focus:</strong> {p.focus}</p>
-                      <p><strong>Motivation:</strong> {p.motivation}</p>
-                      <p><strong>Productivity:</strong> {p.productivity}</p>
-                      <p><strong>Social:</strong> {p.social}</p>
-                    </div>
-                  )
-                }
-                return null;
-              }}/>
-              <Legend />
-              <Bar dataKey="focus" fill="#8b5cf6" radius={[6,6,0,0]}/>
-              <Bar dataKey="motivation" fill="#14b8a6" radius={[6,6,0,0]}/>
-              <Bar dataKey="productivity" fill="#facc15" radius={[6,6,0,0]}/>
-              <Bar dataKey="social" fill="#f43f5e" radius={[6,6,0,0]}/>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
       </div>
     </div>
   );
