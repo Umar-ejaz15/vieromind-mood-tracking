@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, List, Heart, Menu, X } from "lucide-react";
+import { Home, List, Heart, Menu, X, Book } from "lucide-react";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -12,6 +12,8 @@ export default function Sidebar() {
   const navItems = [
     { name: "Dashboard", path: "/dashboard", icon: Home },
     { name: "Mood Logs", path: "/moodlogs", icon: List },
+    { name: "Summary", path: "/summary", icon: Book },
+
   ];
 
   return (
