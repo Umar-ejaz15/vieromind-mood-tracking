@@ -27,7 +27,7 @@ export default function Sidebar() {
       {/* Sidebar */}
       <div
         className={`
-          fixed top-0 left-0 min-h-full w-64 bg-white dark:bg-gray-900 shadow-lg flex flex-col
+          fixed top-0 left-0 min-h-full w-[30%] bg-white dark:bg-gray-900 shadow-lg flex flex-col
           transform transition-transform duration-300 z-40
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
           md:translate-x-0 md:relative md:w-[30%]
