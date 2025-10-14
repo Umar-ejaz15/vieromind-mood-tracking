@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Emoods – AI Mood Tracker",
+  title: "vieromind – AI Mood Tracker",
   description: "Track your mood and get AI-powered insights.",
 };
 

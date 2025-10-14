@@ -26,7 +26,7 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-3">
         {/* Logo / Brand */}
         <Link href="/" className="text-2xl font-bold text-primary">
-          emoods
+          vieromind
         </Link>
 
         {/* Right Side */}

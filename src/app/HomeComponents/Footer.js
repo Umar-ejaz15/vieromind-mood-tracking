@@ -12,7 +12,7 @@ export default function Footer() {
             href="/"
             className="text-2xl font-bold text-indigo-600 dark:text-indigo-400"
           >
-            emoods
+            vieromind
           </Link>
           <p className="text-sm mt-1 text-gray-500 dark:text-gray-500">
             Track your mood. Understand yourself better.
