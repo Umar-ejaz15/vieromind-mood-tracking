@@ -24,9 +24,7 @@ export default function Footer() {
           <Link href="/" className="hover:text-indigo-600 dark:hover:text-indigo-400">
             Home
           </Link>
-          <Link href="#features" className="hover:text-indigo-600 dark:hover:text-indigo-400">
-            Features
-          </Link>
+          
           <Link href="/dashboard" className="hover:text-indigo-600 dark:hover:text-indigo-400">
             Dashboard
           </Link>

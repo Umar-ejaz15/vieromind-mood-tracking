@@ -21,7 +21,7 @@ export const useMoodStore = create((set) => ({
   triggers: "", // can be comma-separated or JSON
 
   // Date & User Info
-  date: new Date().toISOString().slice(1, 10),
+  date: new Date().toISOString().slice(0, 10),
   userId: "",
   userEmail: "",
 

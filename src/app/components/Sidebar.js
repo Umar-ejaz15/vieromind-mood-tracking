@@ -70,13 +70,15 @@ export default function Sidebar() {
           <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
             Feeling low or need to talk to someone?
           </p>
-          <Link
-            href="/reach-therapist"
-            className="block py-2 px-4 rounded-lg bg-red-500 text-white text-center font-semibold hover:bg-red-600 transition-colors"
-            onClick={() => setIsOpen(false)} // close on mobile
-          >
-            Reach a Therapist
-          </Link>
+        <Link
+  href="https://www.psychologytoday.com/us/therapists"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="block py-2 px-4 rounded-lg bg-red-500 text-white text-center font-semibold hover:bg-red-600 transition-colors"
+>
+  Reach a Therapist
+</Link>
+
         </div>
       </div>
 

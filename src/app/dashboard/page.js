@@ -9,6 +9,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   BarChart, Bar
 } from "recharts";
+import Link from "next/link";
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser();
@@ -68,15 +69,36 @@ export default function DashboardPage() {
   const avgEnergy = logs.length ? (logs.reduce((a,b)=>a+b.energy,0)/logs.length).toFixed(1) : 0;
   const totalSleep = logs.length ? logs.reduce((a,b)=>a+b.sleep,0) : 0;
 
-  // Tooltip styles
+  // Therapy suggestion (last 7 days)
+  const recentLogs = logs.slice(-7);
+  const lowMoodDays = recentLogs.filter(log => log.moodValue <= 2).length;
+  const highAnxietyDays = recentLogs.filter(log => log.anxiety >= 4).length;
+  const suggestTherapy = lowMoodDays >= 3 || highAnxietyDays >= 3;
+
   const tooltipClass = `p-2 border rounded shadow ${isDark ? 'bg-gray-800 text-gray-100 border-gray-700' : 'bg-white text-gray-900 border-gray-200'}`;
 
   return (
     <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
       <Sidebar />
-      <div className="flex-1 w-full mdw-[70%] p-6 space-y-8">
+      <div className="flex-1 w-full md:w-[70%] p-6 space-y-8">
 
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Mood & Health Dashboard</h1>
+
+        {/* Therapy Suggestion */}
+        {suggestTherapy && (
+          <div className="p-4 bg-red-100 dark:bg-red-800 text-red-900 dark:text-red-200 rounded-lg shadow mb-4">
+            Based on your recent mood and anxiety patterns, it might help to reach out to a therapist.
+           <Link
+  href="https://www.psychologytoday.com/us/therapists"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="block py-2 px-4 rounded-lg bg-red-500 text-white text-center font-semibold hover:bg-red-600 transition-colors"
+>
+  Reach a Therapist
+</Link>
+
+          </div>
+        )}
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -175,7 +197,7 @@ export default function DashboardPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* Advanced Metrics Bar Chart */}
+        {/* Advanced Metrics */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Advanced Metrics</h2>
           <ResponsiveContainer width="100%" height={300}>
