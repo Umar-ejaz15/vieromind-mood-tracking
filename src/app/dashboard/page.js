@@ -10,6 +10,7 @@ import TherapySuggestion from "./components/TherapySuggestion";
 import BarChartCard from "./components/BarChartCard";
 import LineChartCard from "./components/LineChartCard";
 import StatCard from "./components/StatCard";
+import SleepAnalysisChart from "./components/SleepAnalysisChart";
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser();
@@ -148,6 +149,7 @@ export default function DashboardPage() {
           }}
           tooltipClass={tooltipClass}
         />
+        <SleepAnalysisChart data={logs} tooltipClass={tooltipClass} />
 
         {/* Sleep Trend */}
         <BarChartCard
