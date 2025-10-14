@@ -33,31 +33,36 @@ export default function DashboardPage() {
   // Fetch mood logs
   useEffect(() => {
     if (!user) return;
+
     const fetchLogs = async () => {
       try {
         const res = await axios.get("/api/moodlogs/all", { params: { userId: user.id }});
         const data = res.data
           .sort((a,b) => new Date(a.date) - new Date(b.date))
-          .map(log => ({
-            date: new Date(log.date).toLocaleDateString("en-US", { month:"short", day:"numeric" }),
-            moodValue: moodMap[log.mood] || 0,
-            moodLabel: log.mood || "N/A",
-            sleep: log.sleepHours || 0,
-            anxiety: log.anxietyLevel || 0,
-            energy: log.energyLevel || 0,
-            focus: log.focusLevel || 0,
-            motivation: log.motivationLevel || 0,
-            productivity: log.productivity || 0,
-            social: log.socialInteraction || 0,
-            notes: log.notes || "",
-            morning: log.morningJournal || "",
-            evening: log.eveningJournal || ""
-          }));
+          .map(log => {
+            const moodKey = (log.mood || "N/A").toUpperCase(); // Normalize string
+            return {
+              date: new Date(log.date).toLocaleDateString("en-US", { month:"short", day:"numeric" }),
+              moodValue: moodMap[moodKey] || 0,
+              moodLabel: log.mood || "N/A",
+              sleep: log.sleepHours || 0,
+              anxiety: log.anxietyLevel || 0,
+              energy: log.energyLevel || 0,
+              focus: log.focusLevel || 0,
+              motivation: log.motivationLevel || 0,
+              productivity: log.productivity || 0,
+              social: log.socialInteraction || 0,
+              notes: log.notes || "",
+              morning: log.morningJournal || "",
+              evening: log.eveningJournal || ""
+            }
+          });
         setLogs(data);
       } catch (err) {
         console.error("Failed to fetch mood logs:", err);
       }
     };
+
     fetchLogs();
   }, [user]);
 
@@ -88,15 +93,14 @@ export default function DashboardPage() {
         {suggestTherapy && (
           <div className="p-4 bg-red-100 dark:bg-red-800 text-red-900 dark:text-red-200 rounded-lg shadow mb-4">
             Based on your recent mood and anxiety patterns, it might help to reach out to a therapist.
-           <Link
-  href="https://www.psychologytoday.com/us/therapists"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="block py-2 px-4 rounded-lg bg-red-500 text-white text-center font-semibold hover:bg-red-600 transition-colors"
->
-  Reach a Therapist
-</Link>
-
+            <Link
+              href="https://www.psychologytoday.com/us/therapists"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block py-2 px-4 rounded-lg bg-red-500 text-white text-center font-semibold hover:bg-red-600 transition-colors mt-2"
+            >
+              Reach a Therapist
+            </Link>
           </div>
         )}
 
