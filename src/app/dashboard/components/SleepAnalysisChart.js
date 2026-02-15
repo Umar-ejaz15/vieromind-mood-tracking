@@ -2,8 +2,8 @@
 
 import React from "react";
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -13,28 +13,25 @@ import {
 
 export default function SleepAnalysisChart({ data, tooltipClass }) {
   return (
-    <div className="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-md">
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-        Sleep Analysis 
-      </h2>
+    <div className="bg-card border border-border/50 p-6 rounded-2xl">
+      <h2 className="text-lg font-semibold mb-1">Sleep Analysis</h2>
+      <p className="text-sm text-muted-foreground mb-5">Track your sleep patterns and quality</p>
       <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={data}>
+        <AreaChart data={data}>
           <defs>
             <linearGradient id="sleepGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#60a5fa" stopOpacity={0.8} />
-              <stop offset="95%" stopColor="#60a5fa" stopOpacity={0} />
+              <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+              <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
             </linearGradient>
           </defs>
 
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="#e5e7eb"
-            className="dark:stroke-gray-700"
-          />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.5} />
           <XAxis
             dataKey="date"
-            tick={{ fill: "currentColor" }}
-            stroke="currentColor"
+            stroke="#94a3b8"
+            fontSize={12}
+            axisLine={false}
+            tickLine={false}
           />
           <YAxis
             domain={[0, "dataMax + 2"]}
@@ -42,33 +39,34 @@ export default function SleepAnalysisChart({ data, tooltipClass }) {
               value: "Hours",
               angle: -90,
               position: "insideLeft",
-              fill: "currentColor",
+              fill: "#94a3b8",
+              fontSize: 12,
             }}
-            tick={{ fill: "currentColor" }}
-            stroke="currentColor"
+            stroke="#94a3b8"
+            fontSize={12}
+            axisLine={false}
+            tickLine={false}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: tooltipClass.includes("dark")
-                ? "#1f2937"
-                : "#fff",
-              borderRadius: "8px",
-              border: "none",
-              color: tooltipClass.includes("dark") ? "#f9fafb" : "#111827",
+              backgroundColor: "var(--card)",
+              borderColor: "var(--border)",
+              borderRadius: "12px",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+              fontSize: "13px",
             }}
           />
 
-          <Line
+          <Area
             type="monotone"
             dataKey="sleep"
-            stroke="#60a5fa"
-            strokeWidth={3}
-            dot={{ r: 4 }}
-            activeDot={{ r: 6 }}
-            fillOpacity={1}
+            stroke="#3b82f6"
+            strokeWidth={2.5}
             fill="url(#sleepGradient)"
+            dot={{ r: 4, fill: "#3b82f6", strokeWidth: 2, stroke: "var(--card)" }}
+            activeDot={{ r: 6 }}
           />
-        </LineChart>
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   );

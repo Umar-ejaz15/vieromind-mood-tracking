@@ -10,22 +10,19 @@ export default function Page() {
   const { user, isLoaded } = useUser()
   const router = useRouter()
 
-  // Redirect unauthenticated users
   useEffect(() => {
     if (isLoaded && !user) {
-      router.push("/") // or "/sign-in" if you prefer
+      router.push("/")
     }
   }, [user, isLoaded, router])
 
-  // Avoid rendering before Clerk finishes loading
   if (!isLoaded) return null
 
-  // Render page for logged-in users
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-background">
       <Sidebar />
-      <div className="w-full md:w-[70%]  bg-gray-50 dark:bg-gray-900 p-5">
-        <UserMood/>
+      <div className="flex-1 overflow-auto">
+        <UserMood />
       </div>
     </div>
   )

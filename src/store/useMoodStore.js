@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export const useMoodStore = create((set) => ({
+export const useMoodStore = create((set, get) => ({
   // Core Metrics
   mood: "",
   moodValue: 1,
@@ -18,15 +18,16 @@ export const useMoodStore = create((set) => ({
   notes: "",
   morningJournal: "",
   eveningJournal: "",
-  triggers: "", // can be comma-separated or JSON
+  triggers: "",
 
   // Date & User Info
   date: new Date().toISOString().slice(0, 10),
   userId: "",
   userEmail: "",
 
-  // Load mood log from API (without changing date)
-  loadMoodLog: (log) =>
+  // Load mood log from API - preserves the current date if not provided
+  loadMoodLog: (log) => {
+    const currentDate = get().date;
     set({
       mood: log?.mood || "",
       moodValue: log?.moodValue ?? 1,
@@ -43,7 +44,10 @@ export const useMoodStore = create((set) => ({
       triggers: log?.triggers || "",
       userId: log?.userId || "",
       userEmail: log?.userEmail || "",
-    }),
+      // Preserve date: use provided date, or keep current
+      date: log?.date || currentDate,
+    });
+  },
 
   // Generic setter for individual fields
   setField: (field, value) => set({ [field]: value }),

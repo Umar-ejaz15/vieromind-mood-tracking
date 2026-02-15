@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "vieromind – AI Mood Tracker",
+  title: "MoodFlow - AI Mood Tracker",
   description: "Track your mood and get AI-powered insights.",
 };
 
@@ -24,7 +24,7 @@ export default function RootLayout({ children }) {
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground cz-shortcut-listen="true`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
         >
           <ThemeProvider
             attribute="class"
@@ -32,9 +32,8 @@ export default function RootLayout({ children }) {
             enableSystem
             disableTransitionOnChange
           >
-            {/* Optional wrapper for future i18n */}
-              <Navbar />
-              <main className="pt-16">{children}</main>
+            <Navbar />
+            <main className="pt-16">{children}</main>
           </ThemeProvider>
         </body>
       </html>

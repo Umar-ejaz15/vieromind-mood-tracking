@@ -1,38 +1,35 @@
 "use client";
 
 import Link from "next/link";
+import { Activity } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 text-gray-600 dark:text-gray-400 py-10">
+    <footer className="border-t border-border/50 py-12">
       <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-        {/* Left: Logo + Text */}
         <div className="text-center md:text-left">
-          <Link
-            href="/"
-            className="text-2xl font-bold text-indigo-600 dark:text-indigo-400"
-          >
-            vieromind
+          <Link href="/" className="flex items-center gap-2 justify-center md:justify-start mb-2">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-teal-400 flex items-center justify-center">
+              <Activity size={14} className="text-white" />
+            </div>
+            <span className="text-lg font-bold gradient-text">MoodFlow</span>
           </Link>
-          <p className="text-sm mt-1 text-gray-500 dark:text-gray-500">
+          <p className="text-sm text-muted-foreground">
             Track your mood. Understand yourself better.
           </p>
         </div>
 
-        {/* Center: Navigation Links */}
         <div className="flex gap-6 text-sm">
-          <Link href="/" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+          <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
             Home
           </Link>
-          
-          <Link href="/dashboard" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+          <Link href="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors">
             Dashboard
           </Link>
         </div>
 
-        {/* Right: Copyright */}
-        <p className="text-xs text-gray-500 dark:text-gray-500">
-          © {new Date().getFullYear()} Emoods. All rights reserved.
+        <p className="text-xs text-muted-foreground">
+          &copy; {new Date().getFullYear()} MoodFlow. All rights reserved.
         </p>
       </div>
     </footer>

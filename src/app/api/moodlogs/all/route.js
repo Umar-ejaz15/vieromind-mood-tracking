@@ -1,23 +1,25 @@
 import { prisma } from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 export async function GET(req) {
   try {
+    const { userId: authUserId } = await auth();
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
 
-    if (!userId) return new Response("Missing userId", { status: 400 });
+    if (!authUserId || authUserId !== userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const logs = await prisma.moodLog.findMany({
       where: { userId },
       orderBy: { date: "asc" },
     });
 
-    return new Response(JSON.stringify(logs), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return NextResponse.json(logs);
   } catch (err) {
-    console.error(err);
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    console.error("GET /api/moodlogs/all error:", err);
+    return NextResponse.json({ error: "Failed to fetch mood logs" }, { status: 500 });
   }
 }

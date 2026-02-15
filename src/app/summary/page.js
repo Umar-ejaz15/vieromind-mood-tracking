@@ -5,14 +5,10 @@ import { useUser } from "@clerk/nextjs";
 import Sidebar from "../components/Sidebar";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Sparkles, Download, Loader2, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-const moodMap = {
-  Happy: 5,
-  Good: 4,
-  Neutral: 3,
-  Sad: 2,
-  Angry: 1,
-};
+const moodMap = { AWFUL: 1, BAD: 2, OK: 3, GOOD: 4, GREAT: 5 };
 
 export default function SummaryPage() {
   const { user, isLoaded } = useUser();
@@ -20,7 +16,6 @@ export default function SummaryPage() {
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Fetch mood logs on mount
   useEffect(() => {
     if (!user) return;
     const fetchLogs = async () => {
@@ -28,16 +23,17 @@ export default function SummaryPage() {
         const res = await axios.get("/api/moodlogs/all", {
           params: { userId: user.id },
         });
-        console.log(res);
 
         const data = res.data
           .sort((a, b) => new Date(a.date) - new Date(b.date))
-          .map((log) => ({
+          .map((log) => {
+            const moodKey = (log.mood || "").toUpperCase();
+            return {
             date: new Date(log.date).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
             }),
-            moodValue: moodMap[log.mood] || 0,
+            moodValue: moodMap[moodKey] || log.moodValue || 0,
             moodLabel: log.mood || "N/A",
             sleep: log.sleepHours || 0,
             anxiety: log.anxietyLevel || 0,
@@ -49,9 +45,9 @@ export default function SummaryPage() {
             notes: log.notes || "",
             morning: log.morningJournal || "",
             evening: log.eveningJournal || "",
-          }));
+          };
+          });
 
-        console.log(data);
         setLogs(data);
       } catch (err) {
         console.error("Failed to fetch mood logs:", err);
@@ -60,16 +56,15 @@ export default function SummaryPage() {
     fetchLogs();
   }, [user]);
 
-  // ✅ Generate AI Summary from existing logs
   const handleGenerateSummary = async () => {
     if (!isLoaded) return;
     if (!user) {
-      alert("Please log in first 😢");
+      alert("Please log in first");
       return;
     }
 
     if (!logs.length) {
-      alert("No mood logs found 😔");
+      alert("No mood logs found");
       return;
     }
 
@@ -82,10 +77,10 @@ export default function SummaryPage() {
         userEmail: user.emailAddresses[0]?.emailAddress,
       });
 
-      setSummary(res.data.summary || "No summary generated 😢");
+      setSummary(res.data.summary || "No summary generated");
     } catch (error) {
       console.error("Error generating summary:", error);
-      setSummary("Failed to generate summary 😞");
+      setSummary("Failed to generate summary. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -102,42 +97,72 @@ export default function SummaryPage() {
   if (!isLoaded) return null;
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-background">
       <Sidebar />
-      <div className="flex-1 p-6 bg-gray-50 dark:bg-gray-900">
-        <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-           Mood Summary Report
-        </h1>
+      <div className="flex-1 p-6 md:p-8 overflow-auto">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold tracking-tight mb-1">AI Summary</h1>
+          <p className="text-muted-foreground">Get AI-powered insights from your mood data</p>
+        </div>
 
-        <button
+        {/* Generate Button */}
+        <Button
           onClick={handleGenerateSummary}
           disabled={loading}
-          className="bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition disabled:opacity-50"
+          className="bg-gradient-to-r from-violet-600 to-teal-500 text-white rounded-xl px-6 py-5 shadow-lg hover:opacity-90 transition-all"
         >
-          {loading ? "Generating..." : "Generate AI Summary"}
-        </button>
+          {loading ? (
+            <><Loader2 size={18} className="animate-spin mr-2" /> Generating...</>
+          ) : (
+            <><Sparkles size={18} className="mr-2" /> Generate AI Summary</>
+          )}
+        </Button>
 
-{summary && (
-  <div className="mt-6 bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
-    <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">
-      Your Emotional Insight
-    </h2>
+        {/* Summary Result */}
+        {summary && (
+          <div className="mt-8 bg-card border border-border/50 rounded-2xl overflow-hidden">
+            <div className="p-6 border-b border-border/50 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-teal-500 flex items-center justify-center">
+                  <FileText size={18} className="text-white" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold">Your Emotional Insight</h2>
+                  <p className="text-sm text-muted-foreground">Generated by AI from your mood data</p>
+                </div>
+              </div>
+              <Button
+                onClick={handleDownload}
+                variant="outline"
+                className="rounded-xl"
+              >
+                <Download size={16} className="mr-2" /> Download
+              </Button>
+            </div>
 
-    {/* Wrap ReactMarkdown in a div for styling */}
-    <div className="prose dark:prose-invert text-gray-700 dark:text-gray-300">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-        {summary}
-      </ReactMarkdown>
-    </div>
+            <div className="p-6">
+              <div className="prose dark:prose-invert max-w-none prose-headings:tracking-tight prose-p:leading-relaxed prose-p:text-muted-foreground">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {summary}
+                </ReactMarkdown>
+              </div>
+            </div>
+          </div>
+        )}
 
-    <button
-      onClick={handleDownload}
-      className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
-    >
-      ⬇ Download Summary
-    </button>
-  </div>
-)}
+        {/* Empty state */}
+        {!summary && !loading && (
+          <div className="mt-12 text-center">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-100 to-teal-100 dark:from-violet-950/30 dark:to-teal-950/20 flex items-center justify-center mx-auto mb-4">
+              <Sparkles size={32} className="text-violet-500" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Ready to Generate</h3>
+            <p className="text-muted-foreground text-sm max-w-md mx-auto">
+              Click the button above to generate an AI-powered summary of your mood patterns, trends, and personalized recommendations.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

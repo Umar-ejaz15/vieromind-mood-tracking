@@ -9,32 +9,30 @@ import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Save, Loader2 } from "lucide-react";
+
+const moodOptions = [
+  { label: "Awful", value: "AWFUL", num: 1, emoji: "\u{1F616}", color: "from-red-500 to-rose-600" },
+  { label: "Bad", value: "BAD", num: 2, emoji: "\u{1F61E}", color: "from-orange-500 to-amber-600" },
+  { label: "Ok", value: "OK", num: 3, emoji: "\u{1F610}", color: "from-yellow-500 to-amber-500" },
+  { label: "Good", value: "GOOD", num: 4, emoji: "\u{1F60A}", color: "from-emerald-500 to-teal-600" },
+  { label: "Great", value: "GREAT", num: 5, emoji: "\u{1F929}", color: "from-violet-500 to-purple-600" },
+];
 
 export default function UserMood() {
   const { user, isSignedIn } = useUser();
   const {
-    mood,
-    moodValue,
-    anxietyLevel,
-    energyLevel,
-    sleepHours,
-    focusLevel,
-    motivationLevel,
-    productivity,
-    socialInteraction,
-    notes,
-    morningJournal,
-    eveningJournal,
-    triggers,
-    date,
-    loadMoodLog,
-    setField,
+    mood, moodValue, anxietyLevel, energyLevel, sleepHours,
+    focusLevel, motivationLevel, productivity, socialInteraction,
+    notes, morningJournal, eveningJournal, triggers,
+    date, loadMoodLog, setField,
   } = useMoodStore();
 
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [saved, setSaved] = useState(false);
 
-  // Fetch mood log on mount / date change
   useEffect(() => {
     if (!isSignedIn || !user || !date) return;
 
@@ -45,18 +43,17 @@ export default function UserMood() {
         const res = await axios.get("/api/moodlogs", {
           params: { date, userId: user.id },
         });
-
-        if (res.data) {
+        if (res.data && res.data.id) {
           loadMoodLog({
             ...res.data,
             date: res.data.date ? new Date(res.data.date).toISOString().slice(0, 10) : date,
           });
+        } else {
+          // No log exists for this date - reset form but keep the date
+          loadMoodLog({ date });
         }
       } catch (err) {
-        console.error(
-          "Failed to fetch mood log:",
-          err?.response?.data || err?.message || err
-        );
+        console.error("Failed to fetch mood log:", err?.response?.data || err?.message || err);
         setError("Failed to load mood log");
       } finally {
         setLoading(false);
@@ -66,26 +63,22 @@ export default function UserMood() {
     fetchMoodLog();
   }, [date, user, isSignedIn, loadMoodLog]);
 
+  const handleMoodSelect = (option) => {
+    setField("mood", option.value);
+    setField("moodValue", option.num);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isSignedIn || !user) return alert("You must be logged in to submit a mood log");
 
+    setSaving(true);
+    setSaved(false);
     try {
       const body = {
-        mood,
-        moodValue,
-        anxietyLevel,
-        energyLevel,
-        sleepHours,
-        focusLevel,
-        motivationLevel,
-        productivity,
-        socialInteraction,
-        notes,
-        morningJournal,
-        eveningJournal,
-        triggers,
-        date,
+        mood, moodValue, anxietyLevel, energyLevel, sleepHours,
+        focusLevel, motivationLevel, productivity, socialInteraction,
+        notes, morningJournal, eveningJournal, triggers, date,
         userId: user.id,
         userEmail: user.emailAddresses[0]?.emailAddress || "",
       };
@@ -99,18 +92,19 @@ export default function UserMood() {
         date: data.date ? new Date(data.date).toISOString().slice(0, 10) : date,
       });
 
-      alert("Mood log saved!");
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
     } catch (err) {
       console.error("Error saving mood log:", err?.response?.data || err?.message || err);
       alert("Error saving mood log.");
+    } finally {
+      setSaving(false);
     }
   };
 
   const getLevelLabel = (field, value) => {
     if (value == null) return "-";
     switch (field) {
-      case "moodValue":
-        return ["Awful", "Bad", "Ok", "Good", "Great"][value - 1];
       case "anxietyLevel":
         return ["Low", "Low-Med", "Medium", "Med-High", "High"][value - 1];
       case "energyLevel":
@@ -134,57 +128,79 @@ export default function UserMood() {
   };
 
   const renderSliderField = (label, value, min, max, step, field) => (
-    <div className="space-y-2">
-      <Label>
-        {label}: {value} ({getLevelLabel(field, value)})
-      </Label>
+    <div className="space-y-3">
+      <div className="flex justify-between items-center">
+        <Label className="text-sm font-medium">{label}</Label>
+        <span className="text-sm font-semibold text-violet-600 dark:text-violet-400">
+          {value} <span className="text-xs text-muted-foreground font-normal">({getLevelLabel(field, value)})</span>
+        </span>
+      </div>
       <Slider
         min={min}
         max={max}
         step={step}
         value={[value || min]}
         onValueChange={(val) => setField(field, val[0])}
+        className="cursor-pointer"
       />
     </div>
   );
 
   return (
-    <div className="space-y-8 p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
-      <div className="mx-auto space-y-4 max-w-3xl">
+    <div className="min-h-screen p-6 md:p-8">
+      <div className="mx-auto max-w-3xl space-y-6">
+        {/* Header */}
         <div>
-          <Label className="text-gray-700 dark:text-gray-200 font-medium">Select Date</Label>
+          <h1 className="text-3xl font-bold tracking-tight mb-1">Mood Log</h1>
+          <p className="text-muted-foreground">Record how you feel today</p>
+        </div>
+
+        {/* Date Picker */}
+        <div className="bg-card border border-border/50 rounded-2xl p-5">
+          <Label className="text-sm font-medium mb-2 block">Select Date</Label>
           <Input
             type="date"
             value={date}
             onChange={(e) => setField("date", e.target.value)}
             max={new Date().toISOString().slice(0, 10)}
-            className="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+            className="rounded-xl"
           />
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-          Mood Tracker for {date}
-        </h2>
+        {loading && (
+          <div className="flex items-center gap-2 text-violet-600 dark:text-violet-400 p-4">
+            <Loader2 size={18} className="animate-spin" />
+            <span className="text-sm">Loading mood log...</span>
+          </div>
+        )}
+        {error && <p className="text-destructive text-sm p-4">{error}</p>}
 
-        {loading && <p className="text-indigo-600">Loading mood log...</p>}
-        {error && <p className="text-red-500">{error}</p>}
-
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg"
-        >
-          <div>
-            <Label className="text-gray-700 dark:text-gray-200 font-medium">Overall Mood</Label>
-            <Input
-              value={mood || ""}
-              onChange={(e) => setField("mood", e.target.value)}
-              placeholder="AWFUL, BAD, OK, GOOD, GREAT"
-              className="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
-            />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Mood Selector */}
+          <div className="bg-card border border-border/50 rounded-2xl p-6">
+            <Label className="text-sm font-medium mb-4 block">How are you feeling?</Label>
+            <div className="grid grid-cols-5 gap-3">
+              {moodOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => handleMoodSelect(option)}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 ${
+                    mood === option.value
+                      ? `border-violet-500 bg-gradient-to-br ${option.color} text-white shadow-lg scale-105`
+                      : "border-border/50 bg-accent/30 hover:border-border hover:bg-accent"
+                  }`}
+                >
+                  <span className="text-3xl">{option.emoji}</span>
+                  <span className="text-xs font-medium">{option.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="space-y-4">
-            {renderSliderField("Mood Value", moodValue, 1, 5, 1, "moodValue")}
+          {/* Metric Sliders */}
+          <div className="bg-card border border-border/50 rounded-2xl p-6 space-y-6">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Metrics</h3>
             {renderSliderField("Anxiety Level", anxietyLevel, 1, 5, 1, "anxietyLevel")}
             {renderSliderField("Energy Level", energyLevel, 1, 5, 1, "energyLevel")}
             {renderSliderField("Sleep Hours", sleepHours, 0, 12, 0.5, "sleepHours")}
@@ -194,41 +210,41 @@ export default function UserMood() {
             {renderSliderField("Social Interaction", socialInteraction, 1, 10, 1, "socialInteraction")}
           </div>
 
-          <div className="space-y-4">
-            {["notes", "morningJournal", "eveningJournal", "triggers"].map((field) => (
-              <div key={field}>
-                <Label className="text-gray-700 dark:text-gray-200 font-medium">
-                  {field === "notes"
-                    ? "Notes"
-                    : field === "morningJournal"
-                    ? "Morning Journal"
-                    : field === "eveningJournal"
-                    ? "Evening Journal"
-                    : "Triggers (comma separated)"}
-                </Label>
+          {/* Journal & Notes */}
+          <div className="bg-card border border-border/50 rounded-2xl p-6 space-y-5">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Journal & Notes</h3>
+
+            {[
+              { field: "notes", label: "Notes", placeholder: "Why did you feel this way?" },
+              { field: "morningJournal", label: "Morning Journal", placeholder: "Morning reflection..." },
+              { field: "eveningJournal", label: "Evening Journal", placeholder: "Evening reflection..." },
+              { field: "triggers", label: "Triggers", placeholder: "e.g., work, exercise, family..." },
+            ].map((item) => (
+              <div key={item.field}>
+                <Label className="text-sm font-medium mb-2 block">{item.label}</Label>
                 <Textarea
-                  value={{ notes, morningJournal, eveningJournal, triggers }[field] || ""}
-                  onChange={(e) => setField(field, e.target.value)}
-                  placeholder={
-                    field === "notes"
-                      ? "Why did you feel this way?"
-                      : field === "morningJournal"
-                      ? "Morning reflection..."
-                      : field === "eveningJournal"
-                      ? "Evening reflection..."
-                      : "e.g., work, exercise, family..."
-                  }
-                  className="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                  value={{ notes, morningJournal, eveningJournal, triggers }[item.field] || ""}
+                  onChange={(e) => setField(item.field, e.target.value)}
+                  placeholder={item.placeholder}
+                  className="rounded-xl min-h-[80px] resize-none"
                 />
               </div>
             ))}
           </div>
 
+          {/* Submit */}
           <Button
             type="submit"
-            className="w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+            disabled={saving}
+            className="w-full py-6 bg-gradient-to-r from-violet-600 to-teal-500 text-white font-semibold rounded-xl hover:opacity-90 transition-all text-base shadow-lg"
           >
-            Save Mood
+            {saving ? (
+              <><Loader2 size={18} className="animate-spin mr-2" /> Saving...</>
+            ) : saved ? (
+              "Saved!"
+            ) : (
+              <><Save size={18} className="mr-2" /> Save Mood Log</>
+            )}
           </Button>
         </form>
       </div>

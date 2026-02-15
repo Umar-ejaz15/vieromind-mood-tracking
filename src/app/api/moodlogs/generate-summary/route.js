@@ -1,7 +1,7 @@
-// src/app/api/moodlogs/generate-summary/route.js
-export const runtime = "nodejs"; // important to avoid bundler issues
+export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({
@@ -10,34 +10,49 @@ const ai = new GoogleGenAI({
 
 export async function POST(req) {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { moodData, userEmail } = await req.json();
 
-    if (!moodData || !moodData.length) {
+    if (!moodData || !Array.isArray(moodData) || !moodData.length) {
       return NextResponse.json({ error: "No mood data provided" }, { status: 400 });
     }
 
-    // Format mood logs
     const moodText = moodData
       .map(
         (log) => `
 Date: ${log.date}
-Mood: ${log.moodLabel} (${log.moodValue})
-Sleep: ${log.sleep}h, Anxiety: ${log.anxiety}, Energy: ${log.energy}
-Focus: ${log.focus}, Motivation: ${log.motivation}, Productivity: ${log.productivity}
-Social: ${log.social}, Notes: ${log.notes}
-Morning: ${log.morning}
-Evening: ${log.evening}`
+Mood: ${log.moodLabel} (${log.moodValue}/5)
+Sleep: ${log.sleep}h, Anxiety: ${log.anxiety}/5, Energy: ${log.energy}/5
+Focus: ${log.focus}/10, Motivation: ${log.motivation}/10, Productivity: ${log.productivity}/10
+Social: ${log.social}/10
+Notes: ${log.notes || "none"}
+Morning Journal: ${log.morning || "none"}
+Evening Journal: ${log.evening || "none"}`
       )
       .join("\n");
 
-    const prompt = `You are a friendly AI journal assistant. Summarize the following user's mood data into a concise report highlighting trends, notable changes, and emotional insights. User email: ${userEmail}\n\n${moodText}`;
+    const prompt = `You are a professional AI wellness assistant. Analyze the following user's mood tracking data and provide a comprehensive yet concise report. Include:
+1. Overall mood trends and patterns
+2. Notable changes or concerning patterns
+3. Sleep quality analysis
+4. Correlations between metrics (e.g., sleep vs mood, anxiety vs productivity)
+5. Personalized actionable recommendations
+
+User: ${userEmail || "Anonymous"}
+
+Mood Data:
+${moodText}`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash", // your Gemini model
+      model: "gemini-2.5-flash",
       contents: prompt,
     });
 
-    const summary = response.text || "No summary generated";
+    const summary = response.text || "No summary could be generated. Please try again.";
 
     return NextResponse.json({ summary });
   } catch (err) {
