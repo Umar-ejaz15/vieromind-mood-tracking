@@ -4,16 +4,16 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.GOOGLE_GENAI_API_KEY,
-});
-
 export async function POST(req) {
   try {
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const ai = new GoogleGenAI({
+      apiKey: process.env.GOOGLE_GENAI_API_KEY,
+    });
 
     const { moodData, userEmail } = await req.json();
 
